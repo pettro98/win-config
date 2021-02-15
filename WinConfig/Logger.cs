@@ -9,7 +9,7 @@ namespace WinConfig
 	// assume there are no IOExceptions while writing logs
 	public sealed class Logger
 	{
-		private static Logger g_logger = new Logger(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs"), LogLevel.Debug);
+		private static Logger g_logger = new Logger(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs"), LogLevel.Info);
 
 		public enum LogLevel
 		{
