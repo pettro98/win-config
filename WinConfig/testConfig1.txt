@@ -1,0 +1,150 @@
+﻿[Meta]
+Version=1
+
+###
+[Default]
+# TODO: add INF and script test
+Echo=STARTING LAUNCHER TEST
+LaunchSections=Launcher.ProgramTest
+
+Echo=STARTING GENERAL TEST
+LaunchSections=General.SetEnvTest,General.PwdTest
+
+Echo=SATRTING FILESYSTEM TEST
+LaunchSections=FileSystem.Test
+
+Echo=STARTING REGISTRY TEST
+LaunchSections=Registry.Test
+
+Echo=STARTING EXTENSION TEST
+LaunchSections=X.HelloWorldExt.Test
+
+
+##
+[Launcher.ProgramTest]
+Echo=STARTING LAUNCHER PROGRAM TEST
+Echo=Expected: "some string"
+Echo=Received:
+LaunchProgram=cmd.exe,/c echo "some string"
+
+
+##
+[General.SetEnvTest]
+Echo=STARTING SETENV TEST
+
+SetEnv=NiceString,"VERY NICE ENVIRONMENT STRING"
+Echo=Expected: "VERY NICE ENVIRONMENT STRING"
+Echo=Received: %NiceString%
+
+SetEnv=NiceString,"ANOTHER NICE STRING"
+Echo=Expected: "ANOTHER NICE STRING"
+Echo=Received: %NiceString%
+
+Echo=Received from child process:
+LaunchSections=Launcher.HelperEchoNiceStringEnv
+
+#
+[Launcher.HelperEchoNiceStringEnv]
+LaunchProgram=powershell.exe,-command (ls env:NiceString).Value
+
+
+##
+[General.PwdTest]
+Echo=STARTING PWD TEST
+Echo=Initial dir:
+LaunchSections=Launcher.HelperPwd
+
+PushDir=c:\
+Echo=Expected: c:\
+Echo=Received:
+LaunchSections=Launcher.HelperPwd
+
+SetPwd=C:\Users
+Echo=Expected: C:\Users
+Echo=Received:
+LaunchSections=Launcher.HelperPwd
+
+PopDir=
+Echo=Expected: <initial dir>
+Echo=Received:
+LaunchSections=Launcher.HelperPwd
+
+#
+[Launcher.HelperPwd]
+LaunchProgram=cmd.exe,/c cd
+
+
+##
+[FileSystem.Test]
+MakeDir=c:/users/asus/desktop/testDirectory
+CopyFile=./HelloWorld.txt,c:/users/asus/desktop/testDirectory/HelloWorldCopy.txt,1
+MakeDir=c:/users/asus/desktop/testDirectory/nested
+CopyFile=./HelloWorld.txt,c:/users/asus/desktop/testDirectory/nested/HelloWorldCopy.txt,1
+CopyDir=c:/users/asus/desktop/testDirectory,c:/users/asus/desktop/testDirectory2,3
+RemoveDir=c:/users/asus/desktop/testDirectory,1
+
+##
+[Registry.Test]
+SetValue=HKCU\Test\Nested,MyVal,SZ,fdfdfdfdfdf
+SetValue=HKCU\Test\Nested,MyVal22,SZ,fdedkm
+DeleteValue=HKCU\Test\Nested,MyVal
+SetValue=HKCU\Test\Nested2,,SZ,fdfdfdfdfdf
+SetValue=HKCU\Test\Nested\Nested3,,SZ,fdfdfdfdfdf
+SetValue=HKCU\Test\Nested2\Nested4,,SZ,fdfdfdfdfdf
+DeleteKey=HKCU\Test\Nested,1
+
+##
+[X.HelloWorldExt.Test]
+CreateHW=c:\users\asus\desktop\HW.txt
+
+#
+# NOTE: all environment variables of form %varName% in command arguments are expanded if present in environment
+# WARNING: No sections allowed to have same full names
+#
+# SCHEMA:
+#   REQUIRED SECTIONS:
+#     'Meta'
+#       'Version' - Number; Version of configuration schema
+#
+#   USER SECTIONS:
+#     'Default' - Launched if no other section specified in command line; Only general commands available
+#     'General.<suffix>' - Section with general commands
+#     'FileSystem.<suffix>' - Section with filesystem commands; general commands available
+#     'Launcher.<suffix>' - Section with launcher commands; general commands available
+#     'Registry.<suffix>' - Section with registry commands; general commands available
+#     'X.<module>.<suffix>' - Section that uses commands from <module>
+#
+#   GENERAL COMMANDS:
+#     SetEnv=<varName>,<value> - Sets value of environment variable <varName> to <value>
+#     SetPwd=<dir> - Sets current working directory
+#     PushDir=<dir> - saves current workdir to stack and changes directory to <dir>
+#     PopDir= (no argument) - if directory on stack exists then pops and sets it as current workdir
+#     LaunchSections=<section>[,<section>...] - Launches a series of sections
+#     Echo=<string> - Prints specified string (expanded) to output
+#     
+#   FILESYSTEM COMMANDS:
+#     {CopyFile|MoveFile}=<source>,<target>,<flags_1> - copies/moves file from source to target. Flags description below
+#     {CopyDir|MoveDir}=<source>,<target>,<flags_2> - copies/moves directory with all contents from source to target. Flags description below
+#     RemoveFile=<target> - removes file
+#     RemoveDir=<target>,<flags_3> - removes directory
+#     MakeDirectory=<target> - creates directory at specified target path
+#     
+#   LAUNCHER COMMANDS:
+#     InstallInf=<file>,<flags_4> - install specified inf file by executing its 'DefaultInstall' section; flags described below
+#     LaunchScript=<script> - launch .cmd, .bat, .ps1, .js, .wsh or .vbs script
+#     LaunchProgram=<.exe>[,<arguments>] - launch .exe file with optional <arguments>
+#     
+#   REGISTRY COMMANDS:
+#   NOTE: empty value name means default key value
+#     SetValue=<key>,<name>,<type>,<value> - sets registry value of type DWORD/QWORD/SZ
+#     DeleteKey=<key>,<flags_5> - deletes specified registry key
+#     DeleteValue=<key>,<name> - deletes specified value from registry
+#     ApplyRegFile=<file> - copies information from specified registry file (.reg/.hiv)
+#     CreateBackup=<key>,<file> - copies information from specified key to registry file
+#     
+#   FLAGS:
+#     flags_1 - 1 means overwrite, 0 means error if file exists
+#     flags_2 - sum of flags, 1 means overwrite nested files, 2 means merge directories
+#     flags_3 - 1 means recursive deletion, 0 means error if directory has subdirectories
+#     flags_4 - as described in https://docs.microsoft.com/windows/win32/api/setupapi/nf-setupapi-installhinfsectiona
+#     flags_5 - 1 means recursive deletion, 0 means error if key has nested keys
