@@ -76,12 +76,12 @@ LaunchProgram=cmd.exe,/c cd
 
 ##
 [FileSystem.Test]
-MakeDir=c:/users/asus/desktop/testDirectory
-CopyFile=./HelloWorld.txt,c:/users/asus/desktop/testDirectory/HelloWorldCopy.txt,1
-MakeDir=c:/users/asus/desktop/testDirectory/nested
-CopyFile=./HelloWorld.txt,c:/users/asus/desktop/testDirectory/nested/HelloWorldCopy.txt,1
-CopyDir=c:/users/asus/desktop/testDirectory,c:/users/asus/desktop/testDirectory2,3
-RemoveDir=c:/users/asus/desktop/testDirectory,1
+MakeDir=%USERPROFILE%/desktop/testDirectory
+CopyFile=./HelloWorld.txt,%USERPROFILE%/desktop/testDirectory/HelloWorldCopy.txt,1
+MakeDir=%USERPROFILE%/desktop/testDirectory/nested
+CopyFile=./HelloWorld.txt,%USERPROFILE%/desktop/testDirectory/nested/HelloWorldCopy.txt,1
+CopyDir=%USERPROFILE%/desktop/testDirectory,%USERPROFILE%/desktop/testDirectory2,3
+RemoveDir=%USERPROFILE%/desktop/testDirectory,1
 
 ##
 [Registry.Test]
